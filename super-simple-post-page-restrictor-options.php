@@ -183,11 +183,19 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
 
             add_settings_field(
                 'post_type_select', // ID
-                'Apply To Which Types?', // Title 
+                'Apply to which types?', // Title 
                 array( $this, 'post_type_select_callback' ), // Callback
                 'ss_pp_restrictor', // Page
                 'ss_pp_restrictor_settings' // Section           
-            );                
+            ); 
+
+            add_settings_field(
+                'user_role_select', // ID
+                'Prevent restriction for?', // Title 
+                array( $this, 'user_role_select_callback' ), // Callback
+                'ss_pp_restrictor', // Page
+                'ss_pp_restrictor_settings' // Section           
+            );                             
 
         }
 
@@ -212,6 +220,18 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
                     }
                 } else {
                     $new_input['post_type_select'] = sanitize_text_field( $input['post_type_select'] );
+                }
+            }
+
+            if( isset( $input['user_role_select'] ) ) {
+                //die(print_r($input['user_role_select']));
+                if ( is_array( $input['user_role_select'] ) ) {
+                    foreach ($input['user_role_select'] as $key => $value ) {
+                        //error_log(print_r($value));
+                        $new_input['user_role_select'][ $key ] = $value;
+                    }
+                } else {
+                    $new_input['user_role_select'] = sanitize_text_field( $input['user_role_select'] );
                 }
             }
 
@@ -256,8 +276,78 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
                 echo '</select>';
             }
 
+        }    
 
-        }               
+
+        public function user_role_select_callback() {
+
+            $selected_user_roles = isset($this->options['user_role_select']) ? $this->options['user_role_select'] : array();
+            
+            echo '<select id="post_type_select" name="ss_pp_restrictor_option[user_role_select][]" multiple>';
+            $this->wp_dropdown_roles( $selected_user_roles );
+            echo '</select>';
+ 
+        }
+
+
+
+        /*modified wp_dropdown_roles() function - copied from /wp-admin/includes/template.php */
+        private function wp_dropdown_roles( $selected = false ) {
+            $output = '';
+
+            $editable_roles = array_reverse( get_editable_roles() );
+
+            $roles_added = array();
+
+            //error_log( print_r( $editable_roles, true ) );
+
+            foreach ( $editable_roles as $role => $details ) {
+                $name = translate_user_role($details['name'] );
+                
+
+                if ( is_array( $selected ) && !empty( $selected ) ) {
+
+                    error_log('selected is an array');
+
+                    error_log(print_r($selected, true));
+
+                    foreach ( $selected as $selected_key => $selected_value ) {
+                        // error_log('foreach');
+                        // error_log('key');
+                        // error_log(print_r($selected_key));
+                        // error_log('value');
+                        // error_log(print_r($selected_value, true));
+
+                        if ( !in_array( $selected_value, $roles_added) ) {
+
+                            if ( $selected_value == $role ) { // preselect specified role
+                                $output .= "\n\t<option selected='selected' value='" . esc_attr($role) . "'>$name</option>";
+                            } else {
+                                $output .= "\n\t<option value='" . esc_attr($role) . "'>$name</option>";
+                            }
+
+                            $roles_added[$selected_value] = $role;
+
+                        }
+                    }
+
+                } else {
+
+                    error_log('selected is NOT an array');
+
+                    if ( $selected == $role ) { // preselect specified role
+                        $output .= "\n\t<option selected='selected' value='" . esc_attr($role) . "'>$name</option>";
+                    } 
+                    else {
+                        $output .= "\n\t<option value='" . esc_attr($role) . "'>$name</option>";
+                    }
+                }
+            }
+
+
+            echo $output;
+        }
+
 
     }
 }
