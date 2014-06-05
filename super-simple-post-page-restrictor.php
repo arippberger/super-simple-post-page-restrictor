@@ -1,0 +1,100 @@
+<?php
+/*
+Plugin Name: Super Simple Post / Page Restrictor
+Plugin URI: https://github.com/arippberger/super-simple-post-page-restrictor
+Description: Adds a super simple post / page restriction option
+Version: 1.0
+Author: arippberger
+Author URI: http://alecrippberger.com
+License: GPL2
+*/
+/*  Copyright 2014 Alec Rippberger
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License, version 2, as 
+    published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+if ( !class_exists( 'Super_simple_page_post_restrictor' ) ) {
+
+	class Super_simple_page_post_restrictor {
+
+		public function __construct() {
+
+			add_action( 'init', array( $this, 'init_frontend' ) );
+
+			//initialize admin
+			if ( is_admin() ) {
+				$this->admin_includes();
+			}
+
+		} // End __construct()
+
+		public function init_frontend() {
+
+			//hook main function
+			//add_action( 'pre_get_posts', array( $this, 'dump_query' ) );
+			add_action( 'the_post', array( $this, 'clean_post' ), 1 );
+
+		} // End init()
+
+		public function admin_includes() {
+			// loads the admin settings page and adds functionality to the order admin
+			require_once( 'super-simple-post-page-restrictor-options.php' );
+			$this->admin = new Super_simple_post_page_options();
+		}		
+
+		public function clean_post( $post_object ) {
+
+			//get and store current post checkbox
+			$this->current_post_checkbox = get_post_meta( $post_object->ID, 'ss_pp_restrictor_checkbox', true );
+
+			//if current post is restricted and user is not logged in - TODO - add levels of restriction
+			if ( $this->current_post_checkbox && !is_user_logged_in() ) {
+				add_filter('the_content', array( $this, 'filter_content' ) );
+				add_filter('the_excerpt', array( $this, 'filter_excerpt' ) );
+			} else {
+				
+			}
+		
+
+		}
+
+		public function filter_content($content) {
+			if ( $this->current_post_checkbox ) {
+				$this->options = get_option( 'ss_pp_restrictor_option' );
+				$this->page_unavailable_text = $this->options[ 'page_unavailable_text' ]; 
+				$post_content = !empty( $this->page_unavailable_text ) ? $this->page_unavailable_text : 'This content is currently unavailable to you. ';
+				return $post_content;
+			} else {
+				return $content;
+			}
+
+		}
+
+		public function filter_excerpt($excerpt) {
+			if ( $this->current_post_checkbox ) {
+				$this->options = get_option( 'ss_pp_restrictor_option' );
+				$this->page_unavailable_text = $this->options[ 'page_unavailable_text' ]; 
+				$post_content = !empty( $this->page_unavailable_text ) ? $this->page_unavailable_text : 'This content is currently unavailable to you. ';
+				return $post_content;
+			} else {
+				return $excerpt;
+			}
+
+		}		
+
+	} // End Class
+}
+global $super_simple_page_post_restrictor;
+$super_simple_page_post_restrictor = new Super_simple_page_post_restrictor();
+
+?>
