@@ -54,11 +54,23 @@ if ( !class_exists( 'Super_simple_page_post_restrictor' ) ) {
 
 		public function clean_post( $post_object ) {
 
+			//var_dump($post_object);
+
+			$this->options = get_option( 'ss_pp_restrictor_option' );
+
 			//get and store current post checkbox
 			$this->current_post_checkbox = get_post_meta( $post_object->ID, 'ss_pp_restrictor_checkbox', true );
 
+			//see if current post type is restricted
+			$restricted_post_type = false;
+			if ( is_array( $this->options['post_type_select'] ) ) {
+				if ( in_array(  $post_object->post_type, $this->options['post_type_select'] ) ) {
+					$restricted_post_type = true;
+				}
+			}
+
 			//if current post is restricted and user is not logged in - TODO - add levels of restriction
-			if ( $this->current_post_checkbox && !is_user_logged_in() ) {
+			if ( $this->current_post_checkbox && !is_user_logged_in() && $restricted_post_type  ) {
 				add_filter('the_content', array( $this, 'filter_content' ) );
 				add_filter('the_excerpt', array( $this, 'filter_excerpt' ) );
 			} else {
@@ -70,8 +82,8 @@ if ( !class_exists( 'Super_simple_page_post_restrictor' ) ) {
 
 		public function filter_content($content) {
 			if ( $this->current_post_checkbox ) {
-				$this->options = get_option( 'ss_pp_restrictor_option' );
-				$this->page_unavailable_text = $this->options[ 'page_unavailable_text' ]; 
+				
+				$this->page_unavailable_text = $this->options['page_unavailable_text']; 
 				$post_content = !empty( $this->page_unavailable_text ) ? $this->page_unavailable_text : 'This content is currently unavailable to you. ';
 				return $post_content;
 			} else {
@@ -82,8 +94,8 @@ if ( !class_exists( 'Super_simple_page_post_restrictor' ) ) {
 
 		public function filter_excerpt($excerpt) {
 			if ( $this->current_post_checkbox ) {
-				$this->options = get_option( 'ss_pp_restrictor_option' );
-				$this->page_unavailable_text = $this->options[ 'page_unavailable_text' ]; 
+				
+				$this->page_unavailable_text = $this->options['page_unavailable_text']; 
 				$post_content = !empty( $this->page_unavailable_text ) ? $this->page_unavailable_text : 'This content is currently unavailable to you. ';
 				return $post_content;
 			} else {
