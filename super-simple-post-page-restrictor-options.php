@@ -28,16 +28,28 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
         * Add checkbox to posts/pages which will allow users to select whether a post/page should be restricted
         */
         public function add_post_restriction_checkbox() {
+
+            //get options
+            $this->options = get_option( 'ss_pp_restrictor_option' );
+
+            //get post types set on settings page
+            $applicable_post_types = $this->options['post_type_select'];
+
             $post_types = get_post_types(); //get all post types
-            foreach ( $post_types as $post_type ) {
-                add_meta_box(
-                    'ss_pp_restriction_checkbox', // Unique ID
-                    esc_html__( 'Restrict Post?', 'ss_pp_restrictor' ),   
-                    array( $this, 'post_restriction_checkbox' ),   
-                    $post_type,    
-                    'side',   
-                    'default'    
-                );
+
+            if ( is_array($applicable_post_types) && is_array($post_types) ) {
+                foreach ( $post_types as $post_type ) {
+                    if ( in_array( $post_type, $applicable_post_types ) ) {
+                        add_meta_box(
+                            'ss_pp_restriction_checkbox', // Unique ID
+                            esc_html__( 'Restrict Post?', 'ss_pp_restrictor' ),   
+                            array( $this, 'post_restriction_checkbox' ),   
+                            $post_type,    
+                            'side',   
+                            'default'    
+                        );
+                    }
+                }
             }
         }
 
@@ -58,6 +70,9 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
 
         }      
 
+        /**
+        * Hook to save and save $_POST variables
+        */
         public function save_post_restriction_checkbox( $post_id, $post ) {
 
             // error_log(print_r($post_id));
@@ -80,8 +95,6 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
 
             //new checkbox value
             $new_checkbox_value = ( isset( $_POST[ 'ss_pp_restrictor_checkbox' ] ) ? filter_var( $_POST[ 'ss_pp_restrictor_checkbox' ], FILTER_SANITIZE_NUMBER_INT ) : '' );
-
-            
 
             //get old checkbox value
             $checkbox_value = get_post_meta( $post_id, 'ss_pp_restrictor_checkbox', true );
@@ -128,9 +141,7 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
             //var_dump($this->options);
 
             ?>
-            <div class="wrap">
-                <?php screen_icon(); ?>
-                <h2>Super Simple Post / Page Restrictor</h2>           
+            <div class="wrap">  
                 <form method="post" action="options.php">
                 <?php
                     // This prints out all hidden setting fields
@@ -167,7 +178,16 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
                 array( $this, 'page_unavailable_text_callback' ), // Callback
                 'ss_pp_restrictor', // Page
                 'ss_pp_restrictor_settings' // Section           
-            );                    
+            ); 
+
+
+            add_settings_field(
+                'post_type_select', // ID
+                'Apply To Which Types?', // Title 
+                array( $this, 'post_type_select_callback' ), // Callback
+                'ss_pp_restrictor', // Page
+                'ss_pp_restrictor_settings' // Section           
+            );                
 
         }
 
@@ -179,8 +199,21 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
         public function sanitize( $input ) {
             $new_input = array();
 
-            if( isset( $input['page_unavailable_text'] ) )
+            if( isset( $input['page_unavailable_text'] ) ) {
                 $new_input['page_unavailable_text'] = sanitize_text_field( $input['page_unavailable_text'] );
+            }
+
+            if( isset( $input['post_type_select'] ) ) {
+                //die(print_r($input['post_type_select']));
+                if ( is_array( $input['post_type_select'] ) ) {
+                    foreach ($input['post_type_select'] as $key => $value ) {
+                        //error_log(print_r($value));
+                        $new_input['post_type_select'][ $key ] = $value;
+                    }
+                } else {
+                    $new_input['post_type_select'] = sanitize_text_field( $input['post_type_select'] );
+                }
+            }
 
             return $new_input;
 
@@ -193,7 +226,7 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
             // print 'Enter your settings below:';
         }
 
-        /** 
+        /**  
          * Get the settings option array and print one of its values
          */
         public function page_unavailable_text_callback() {
@@ -203,7 +236,28 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
                 isset( $this->options['page_unavailable_text'] ) ? esc_attr( $this->options['page_unavailable_text']) : '', 
                 array( 'label_for' => 'page_unavailable_text')
             );
-        }         
+        }   
+
+        public function post_type_select_callback() {
+
+            $all_post_types = get_post_types();
+            $selected_post_types = $this->options['post_type_select'];
+
+            if ( is_array( $all_post_types ) ) {
+                echo '<select id="post_type_select" name="ss_pp_restrictor_option[post_type_select][]" multiple>';
+                foreach ( $all_post_types as $key => $post_type ) {
+                    $selected = '';
+                    if ( is_array( $selected_post_types ) ) {
+                        $selected = in_array( $post_type, $selected_post_types ) ? 'selected' : '';
+                    }
+                    
+                    printf('<option value="%s" %s>%s</option>', $post_type, $selected, $post_type);
+                }
+                echo '</select>';
+            }
+
+
+        }               
 
     }
 }
