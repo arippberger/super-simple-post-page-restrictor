@@ -11,7 +11,7 @@ License: GPL2
 /*  Copyright 2014 Alec Rippberger
 
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
+    it under the terms of the GNU General Public License, version 2, as
     published by the Free Software Foundation.
 
     This program is distributed in the hope that it will be useful,
@@ -23,9 +23,9 @@ License: GPL2
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-if ( !class_exists( 'Super_simple_page_post_restrictor' ) ) {
+if ( !class_exists( 'Super_Simple_Page_Post_Restrictor' ) ) {
 
-	class Super_simple_page_post_restrictor {
+	class Super_Simple_Page_Post_Restrictor {
 
 		public function __construct() {
 
@@ -50,7 +50,7 @@ if ( !class_exists( 'Super_simple_page_post_restrictor' ) ) {
 			// loads the admin settings page and adds functionality to the order admin
 			require_once( 'super-simple-post-page-restrictor-options.php' );
 			$this->admin = new Super_simple_post_page_options();
-		}		
+		}
 
 		public function clean_post( $post_object ) {
 
@@ -74,16 +74,16 @@ if ( !class_exists( 'Super_simple_page_post_restrictor' ) ) {
 				add_filter('the_content', array( $this, 'filter_content' ) );
 				add_filter('the_excerpt', array( $this, 'filter_excerpt' ) );
 			} else {
-				
+
 			}
-		
+
 
 		}
 
 		public function filter_content($content) {
 			if ( $this->current_post_checkbox ) {
-				
-				$this->page_unavailable_text = $this->options['page_unavailable_text']; 
+
+				$this->page_unavailable_text = $this->options['page_unavailable_text'];
 				$post_content = !empty( $this->page_unavailable_text ) ? $this->page_unavailable_text : 'This content is currently unavailable to you. ';
 				return $post_content;
 			} else {
@@ -94,19 +94,19 @@ if ( !class_exists( 'Super_simple_page_post_restrictor' ) ) {
 
 		public function filter_excerpt($excerpt) {
 			if ( $this->current_post_checkbox ) {
-				
-				$this->page_unavailable_text = $this->options['page_unavailable_text']; 
+
+				$this->page_unavailable_text = $this->options['page_unavailable_text'];
 				$post_content = !empty( $this->page_unavailable_text ) ? $this->page_unavailable_text : 'This content is currently unavailable to you. ';
 				return $post_content;
 			} else {
 				return $excerpt;
 			}
 
-		}		
+		}
 
 	} // End Class
 }
 global $super_simple_page_post_restrictor;
-$super_simple_page_post_restrictor = new Super_simple_page_post_restrictor();
+$super_simple_page_post_restrictor = new Super_Simple_Page_Post_Restrictor();
 
 ?>

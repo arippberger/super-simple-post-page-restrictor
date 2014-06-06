@@ -1,6 +1,6 @@
 <?php
-if ( !class_exists( 'Super_simple_post_page_options' ) ) {
-    class Super_simple_post_page_options {
+if ( !class_exists( 'Super_Simple_Post_Page_Options' ) ) {
+    class Super_Simple_Post_Page_Options {
         /**
          * Holds the values to be used in the fields callbacks
          */
@@ -14,7 +14,7 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
             add_action( 'admin_init', array( $this, 'page_init' ) );
             add_action( 'add_meta_boxes', array( $this, 'add_post_restriction_checkbox' ) );
             add_action( 'save_post', array( $this, 'save_post_restriction_checkbox' ), 13, 2 );
-            
+
         }
 
         /**
@@ -42,11 +42,11 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
                     if ( in_array( $post_type, $applicable_post_types ) ) {
                         add_meta_box(
                             'ss_pp_restriction_checkbox', // Unique ID
-                            esc_html__( 'Restrict Post?', 'ss_pp_restrictor' ),   
-                            array( $this, 'post_restriction_checkbox' ),   
-                            $post_type,    
-                            'side',   
-                            'default'    
+                            esc_html__( 'Restrict Post?', 'ss_pp_restrictor' ),
+                            array( $this, 'post_restriction_checkbox' ),
+                            $post_type,
+                            'side',
+                            'default'
                         );
                     }
                 }
@@ -54,21 +54,21 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
         }
 
         /**
-        * Display meta box. 
+        * Display meta box.
         */
         public function post_restriction_checkbox( $object, $box ) {
 
           wp_nonce_field( basename( __FILE__ ), 'post_restriction_checkbox_nonce' );
-          $checked = get_post_meta( $object->ID, 'ss_pp_restrictor_checkbox', true ); 
-          //var_dump( $checked ); 
+          $checked = get_post_meta( $object->ID, 'ss_pp_restrictor_checkbox', true );
+          //var_dump( $checked );
           ?>
           <p>
             <label for="post_restriction_checkbox"><?php _e( 'Restrict post/page content to logged-in users?', 'ss_pp_restrictor' ); ?></label>
             <br />
             <input type="checkbox" name="ss_pp_restrictor_checkbox" id="ss_pp_restrictor_checkbox" value="1" <?php checked( $checked ); ?> />
-          </p><?php 
+          </p><?php
 
-        }      
+        }
 
         /**
         * Hook to save and save $_POST variables
@@ -83,7 +83,7 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
                 //error_log('nonce not valid');
                 return $post_id;
             }
-                
+
             //get current post type
             $post_type = get_post_type_object( $post->post_type );
 
@@ -110,7 +110,7 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
 
             } else if ( '' == $new_checkbox_value && $checkbox_value ) { //if new checkbox value is empty and old exists, delete new
 
-                delete_post_meta( $post_id, 'ss_pp_restrictor_checkbox', $checkbox_value ); 
+                delete_post_meta( $post_id, 'ss_pp_restrictor_checkbox', $checkbox_value );
 
             }
 
@@ -122,10 +122,10 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
         public function add_plugin_page() {
             // This page will be under "Settings"
             add_options_page(
-                'Settings Admin', 
-                'Super Simple Post / Page Restrictor', 
-                'manage_options', 
-                'ss_pp_restrictor', 
+                'Settings Admin',
+                'Super Simple Post / Page Restrictor',
+                'manage_options',
+                'ss_pp_restrictor',
                 array( $this, 'create_admin_page' )
             );
         }
@@ -134,20 +134,20 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
          * Options page callback
          */
         public function create_admin_page() {
-            
+
             // Set class property
             $this->options = get_option( 'ss_pp_restrictor_option' );
 
             //var_dump($this->options);
 
             ?>
-            <div class="wrap">  
+            <div class="wrap">
                 <form method="post" action="options.php">
                 <?php
                     // This prints out all hidden setting fields
-                    settings_fields( 'ss_pp_restrictor_option_group' );   
+                    settings_fields( 'ss_pp_restrictor_option_group' );
                     do_settings_sections( 'ss_pp_restrictor' );
-                    submit_button(); 
+                    submit_button();
                 ?>
                 </form>
             </div>
@@ -157,7 +157,7 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
         /**
          * Register and add settings
          */
-        public function page_init() {        
+        public function page_init() {
             register_setting(
                 'ss_pp_restrictor_option_group', // Option group
                 'ss_pp_restrictor_option', // Option name
@@ -169,25 +169,33 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
                 'Super Simple Post / Page Restrictor Settings', // Title
                 array( $this, 'print_section_info' ), // Callback
                 'ss_pp_restrictor' // Page
-            );  
+            );
 
             //add setting for ftp server
             add_settings_field(
                 'page_unavailable_text', // ID
-                'Page Unavailable Text', // Title 
+                'Page unavailable text', // Title
                 array( $this, 'page_unavailable_text_callback' ), // Callback
                 'ss_pp_restrictor', // Page
-                'ss_pp_restrictor_settings' // Section           
-            ); 
+                'ss_pp_restrictor_settings' // Section
+            );
 
 
             add_settings_field(
                 'post_type_select', // ID
-                'Apply To Which Types?', // Title 
+                'Apply to which post types?', // Title
                 array( $this, 'post_type_select_callback' ), // Callback
                 'ss_pp_restrictor', // Page
-                'ss_pp_restrictor_settings' // Section           
-            );                
+                'ss_pp_restrictor_settings' // Section
+            );
+
+            add_settings_field(
+                'user_role_select', // ID
+                'Prevent restriction for which user types?', // Title
+                array( $this, 'user_role_select_callback' ), // Callback
+                'ss_pp_restrictor', // Page
+                'ss_pp_restrictor_settings' // Section
+            );
 
         }
 
@@ -215,28 +223,40 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
                 }
             }
 
+            if( isset( $input['user_role_select'] ) ) {
+                //die(print_r($input['user_role_select']));
+                if ( is_array( $input['user_role_select'] ) ) {
+                    foreach ($input['user_role_select'] as $key => $value ) {
+                        //error_log(print_r($value));
+                        $new_input['user_role_select'][ $key ] = $value;
+                    }
+                } else {
+                    $new_input['user_role_select'] = sanitize_text_field( $input['user_role_select'] );
+                }
+            }
+
             return $new_input;
 
         }
 
-        /** 
+        /**
          * Print the Section text
          */
         public function print_section_info() {
             // print 'Enter your settings below:';
         }
 
-        /**  
+        /**
          * Get the settings option array and print one of its values
          */
         public function page_unavailable_text_callback() {
             printf(
                 '<textarea id="page_unavailable_text" name="ss_pp_restrictor_option[page_unavailable_text]">%s</textarea><br>' .
                 '<label for="page_unavailable_text">Enter the text you&apos;d like to display when content is restricted.<br>Defaults to "This content is currently unavailable to you".</label>',
-                isset( $this->options['page_unavailable_text'] ) ? esc_attr( $this->options['page_unavailable_text']) : '', 
+                isset( $this->options['page_unavailable_text'] ) ? esc_attr( $this->options['page_unavailable_text']) : '',
                 array( 'label_for' => 'page_unavailable_text')
             );
-        }   
+        }
 
         public function post_type_select_callback() {
 
@@ -250,15 +270,56 @@ if ( !class_exists( 'Super_simple_post_page_options' ) ) {
                     if ( is_array( $selected_post_types ) ) {
                         $selected = in_array( $post_type, $selected_post_types ) ? 'selected' : '';
                     }
-                    
+
                     printf('<option value="%s" %s>%s</option>', $post_type, $selected, $post_type);
                 }
                 echo '</select>';
             }
 
+        }
 
-        }               
 
+        public function user_role_select_callback() {
+
+            $selected_user_roles = isset($this->options['user_role_select']) ? $this->options['user_role_select'] : array();
+            ?>
+            <select id="user_role_select" name="ss_pp_restrictor_option[user_role_select][]" multiple>';
+              <?php $this->wp_dropdown_roles( $selected_user_roles );?>
+            </select><br>
+            <label for="user_role_select">All users of the selected type(s) will be able to see restricted content when logged in.<br>
+            User types NOT selected will never be able to see restricted content - even when logged in.</label><?php
+        }
+
+
+
+        /*modified wp_dropdown_roles() function - copied from /wp-admin/includes/template.php */
+        private function wp_dropdown_roles( $selected = false ) {
+
+            $output = '';
+
+            $editable_roles = array_reverse( get_editable_roles() );
+
+            //error_log(print_r($editable_roles, true));
+
+            if ( !is_array( $selected ) ) {
+              $selected = array ( $selected );
+            }
+
+
+            foreach ( $editable_roles as $role => $details ) {
+              $name = translate_user_role($details['name'] );
+              if ( in_array( $role, $selected ) ) {// preselect specified role
+                $output .= "\n\t<option selected='selected' value='" . esc_attr($role) . "'>$name</option>";
+              }
+              else {
+                $output .= "\n\t<option value='" . esc_attr($role) . "'>$name</option>";
+              }
+            }
+
+
+            echo $output;
+
+        }
     }
 }
 ?>
