@@ -63,7 +63,7 @@ if ( !class_exists( 'Super_Simple_Post_Page_Options' ) ) {
           //var_dump( $checked );
           ?>
           <p>
-            <label for="post_restriction_checkbox"><?php _e( 'Restrict post/page content to logged-in users?', 'ss_pp_restrictor' ); ?></label>
+            <label class="small-text" for="post_restriction_checkbox"><?php _e( 'Restrict post/page content to logged-in users?', 'ss_pp_restrictor' ); ?></label>
             <br />
             <input type="checkbox" name="ss_pp_restrictor_checkbox" id="ss_pp_restrictor_checkbox" value="1" <?php checked( $checked ); ?> />
           </p><?php
@@ -252,7 +252,7 @@ if ( !class_exists( 'Super_Simple_Post_Page_Options' ) ) {
         public function page_unavailable_text_callback() {
             printf(
                 '<textarea id="page_unavailable_text" name="ss_pp_restrictor_option[page_unavailable_text]">%s</textarea><br>' .
-                '<label for="page_unavailable_text">Enter the text you&apos;d like to display when content is restricted.<br>Defaults to "This content is currently unavailable to you".</label>',
+                '<label class="small-text" for="page_unavailable_text">Enter the text you&apos;d like to display when content is restricted.<br>Defaults to "This content is currently unavailable to you".</label>',
                 isset( $this->options['page_unavailable_text'] ) ? esc_attr( $this->options['page_unavailable_text']) : '',
                 array( 'label_for' => 'page_unavailable_text')
             );
@@ -286,7 +286,7 @@ if ( !class_exists( 'Super_Simple_Post_Page_Options' ) ) {
             <select id="user_role_select" name="ss_pp_restrictor_option[user_role_select][]" multiple>';
               <?php $this->wp_dropdown_roles( $selected_user_roles );?>
             </select><br>
-            <label for="user_role_select">All users of the selected type(s) will be able to see restricted content when logged in.<br>
+            <label class="small-text" for="user_role_select">All users of the selected type(s) will be able to see restricted content when logged in.<br>
             User types NOT selected will never be able to see restricted content - even when logged in.</label><?php
         }
 
