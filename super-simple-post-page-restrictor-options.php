@@ -212,11 +212,20 @@ if ( !class_exists( 'Super_Simple_Post_Page_Options' ) ) {
             }
 
             if( isset( $input['post_type_select'] ) ) {
-                //die(print_r($input['post_type_select']));
+
                 if ( is_array( $input['post_type_select'] ) ) {
+
+                	$all_post_types = get_post_types();
+
                     foreach ($input['post_type_select'] as $key => $value ) {
-                        //error_log(print_r($value));
-                        $new_input['post_type_select'][ $key ] = $value;
+
+						//sanitize via whitelist - if input does not exist in existing post types, set value to blank string
+                    	if ( in_array( $value, $all_post_types ) ) {
+                        	$new_input['post_type_select'][ $key ] = $value;
+                        } else {
+                        	$new_input['post_type_select'][ $key ] = '';
+                        }
+                        
                     }
                 } else {
                     $new_input['post_type_select'] = sanitize_text_field( $input['post_type_select'] );
@@ -224,11 +233,19 @@ if ( !class_exists( 'Super_Simple_Post_Page_Options' ) ) {
             }
 
             if( isset( $input['user_role_select'] ) ) {
-                //die(print_r($input['user_role_select']));
+
+            	$editable_roles = array_reverse( get_editable_roles() );
+                
                 if ( is_array( $input['user_role_select'] ) ) {
                     foreach ($input['user_role_select'] as $key => $value ) {
-                        //error_log(print_r($value));
-                        $new_input['user_role_select'][ $key ] = $value;
+                        
+                  		//sanitize via whitelist - if input does not exist in editable roles, set value to blank string
+                        if ( array_key_exists( $value, $editable_roles ) ) {
+                        	$new_input['user_role_select'][ $key ] = $value;
+                        } else {
+                        	$new_input['user_role_select'][ $key ] = '';
+                        }
+                        
                     }
                 } else {
                     $new_input['user_role_select'] = sanitize_text_field( $input['user_role_select'] );
