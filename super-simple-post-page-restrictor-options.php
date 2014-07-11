@@ -150,6 +150,9 @@ if ( !class_exists( 'Super_Simple_Post_Page_Options' ) ) {
                     submit_button();
                 ?>
                 </form>
+                <script>
+
+                </script>
             </div>
             <?php
         }
