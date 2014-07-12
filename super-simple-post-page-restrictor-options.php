@@ -191,7 +191,7 @@ if ( !class_exists( 'Super_Simple_Post_Page_Options' ) ) {
 
             add_settings_field(
                 'user_role_select', // ID
-                'Prevent restriction for which user types?', // Title
+                'Never display restricted content for which user types?', // Title
                 array( $this, 'user_role_select_callback' ), // Callback
                 'ss_pp_restrictor', // Page
                 'ss_pp_restrictor_settings' // Section
@@ -303,8 +303,7 @@ if ( !class_exists( 'Super_Simple_Post_Page_Options' ) ) {
             <select id="user_role_select" data-placeholder="Select some user roles" name="ss_pp_restrictor_option[user_role_select][]" multiple>';
               <?php $this->wp_dropdown_roles( $selected_user_roles );?>
             </select><br>
-            <label class="small-text" for="user_role_select">All users of the selected type(s) will be able to see restricted content when logged in.<br>
-            User types NOT selected will never be able to see restricted content - even when logged in.</label><?php
+            <label class="small-text" for="user_role_select">Selected user roles will never be able to see restricted content - even when logged in.</label><?php
         }
 
 

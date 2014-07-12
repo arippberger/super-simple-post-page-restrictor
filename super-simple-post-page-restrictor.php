@@ -47,6 +47,10 @@ if ( !class_exists( 'Super_Simple_Page_Post_Restrictor' ) ) {
 			//enqueue scripts and styles
 			add_action( 'admin_enqueue_scripts', array( $this, 'super_simple_post_restrictor_admin_scripts' ) );
 
+			//restrict feed content
+			// add_action('rss_head', array( $this, 'restrict_feed' ) );
+			// add_action('rss2_head', array( $this, 'restrict_feed' ) );
+
 		} // End init()
 
 		public function admin_includes() {
@@ -78,17 +82,52 @@ if ( !class_exists( 'Super_Simple_Page_Post_Restrictor' ) ) {
 				}
 			}
 
-			//if current post is restricted and user is not logged in - TODO - add levels of restriction
-			if ( $this->current_post_checkbox && !is_user_logged_in() && $restricted_post_type  ) {
+			//get array of roles that may NEVER access content
+			$restricted_roles = $this->options['user_role_select'];
+
+			//get array of current user roles
+			$current_user_roles = $this->get_current_user_roles();
+
+			//all users start with access
+			$current_user_can_access = true;
+
+			//loop through current user roles and check if any roles are in restricted roles array
+			foreach ($current_user_roles as $key => $role) {
+				if ( in_array( $role, $restricted_roles) ) {
+					//restrict access
+					$current_user_can_access = false;
+				}
+			}
+
+			//if current post is restricted and user is not logged in - OR - check if current post is restricted and user can't access
+			if ( $this->current_post_checkbox && !is_user_logged_in() && $restricted_post_type || $restricted_post_type && $this->current_post_checkbox && !$current_user_can_access ) {
 				add_filter('the_content', array( $this, 'filter_content' ) );
 				add_filter('the_excerpt', array( $this, 'filter_excerpt' ) );
+				// add_action('rss_head', array( $this, 'restrict_feed' ) );
+				// add_action('rss2_head', array( $this, 'restrict_feed' ) );
 			} else {
 
 			}
 
-
+		}
+	
+		public function restrict_feed(){
+			die('this is the rss_head');
+			add_filter('the_content', array( $this, 'filter_feed_content' ) );
 		}
 
+		public function filter_feed_content($content) {
+			global $wp_query;
+			if (is_feed() && $this->current_post_checkbox) {
+				$this->page_unavailable_text = $this->options['page_unavailable_text'];
+				$post_content = !empty( $this->page_unavailable_text ) ? $this->page_unavailable_text : 'This content is currently unavailable to you. ';
+				return $post_content;
+			} else {
+				return $content;
+			}
+			
+		}		
+		
 		public function filter_content($content) {
 			if ( $this->current_post_checkbox ) {
 
@@ -111,6 +150,26 @@ if ( !class_exists( 'Super_Simple_Page_Post_Restrictor' ) ) {
 				return $excerpt;
 			}
 
+		}
+
+		/**
+		 * Returns the role of the current user. 
+		 *
+		 * @return array containing the names of the current users role(s)
+		 **/
+		private function get_current_user_roles() {
+			global $wp_roles;
+			$current_user = wp_get_current_user();
+			$roles = $current_user->roles;
+
+			$translated_roles = array();
+				
+			foreach ($roles as $key => $role) {
+				//$translated_roles[] = isset($wp_roles->role_names[$role]) ? translate_user_role($wp_roles->role_names[$role] ) : $role;
+				$translated_roles[] = $role;
+			}
+
+			return $translated_roles;
 		}
 
 	} // End Class
