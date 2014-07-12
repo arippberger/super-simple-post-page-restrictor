@@ -45,7 +45,7 @@ if ( !class_exists( 'Super_Simple_Page_Post_Restrictor' ) ) {
 			add_action( 'the_post', array( $this, 'clean_post' ), 1 );
 
 			//enqueue scripts and styles
-			add_action( 'wp_enqueue_scripts', array( $this, 'super_simple_post_restrictor_scripts' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'super_simple_post_restrictor_admin_scripts' ) );
 
 		} // End init()
 
@@ -55,9 +55,10 @@ if ( !class_exists( 'Super_Simple_Page_Post_Restrictor' ) ) {
 			$this->admin = new Super_simple_post_page_options();
 		}
 
-		public super_simple_post_restrictor_scripts(){
-			wp_enqueue_style( 'chosen-styles', get_stylesheet_directory_uri() . 'assets/css/chosen.min.css' );
-			wp_enqueue_script( 'chosen-script', get_stylesheet_directory_uri() . 'assets/js/chosen.jquery.min.js', array( 'jquery' ), '1.1.0', true );
+		public function super_simple_post_restrictor_admin_scripts(){
+			wp_enqueue_style( 'chosen-styles', plugin_dir_url( __FILE__ ) . '/assets/css/chosen.min.css' );
+			wp_enqueue_script( 'chosen-script', plugin_dir_url( __FILE__ ) . '/assets/js/chosen.jquery.min.js', array( 'jquery' ), '1.1.0', true );
+			wp_enqueue_script( 'chosen-init', plugin_dir_url( __FILE__ ) . '/assets/js/chosen-init.js', array( 'jquery', 'chosen-script') );
 		}
 
 		public function clean_post( $post_object ) {

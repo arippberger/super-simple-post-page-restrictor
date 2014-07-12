@@ -150,9 +150,6 @@ if ( !class_exists( 'Super_Simple_Post_Page_Options' ) ) {
                     submit_button();
                 ?>
                 </form>
-                <script>
-
-                </script>
             </div>
             <?php
         }
@@ -284,7 +281,7 @@ if ( !class_exists( 'Super_Simple_Post_Page_Options' ) ) {
             $selected_post_types = $this->options['post_type_select'];
 
             if ( is_array( $all_post_types ) ) {
-                echo '<select id="post_type_select" name="ss_pp_restrictor_option[post_type_select][]" multiple>';
+                echo '<select id="post_type_select" data-placeholder="Select some post types" name="ss_pp_restrictor_option[post_type_select][]" multiple>';
                 foreach ( $all_post_types as $key => $post_type ) {
                     $selected = '';
                     if ( is_array( $selected_post_types ) ) {
@@ -303,7 +300,7 @@ if ( !class_exists( 'Super_Simple_Post_Page_Options' ) ) {
 
             $selected_user_roles = isset($this->options['user_role_select']) ? $this->options['user_role_select'] : array();
             ?>
-            <select id="user_role_select" name="ss_pp_restrictor_option[user_role_select][]" multiple>';
+            <select id="user_role_select" data-placeholder="Select some user roles" name="ss_pp_restrictor_option[user_role_select][]" multiple>';
               <?php $this->wp_dropdown_roles( $selected_user_roles );?>
             </select><br>
             <label class="small-text" for="user_role_select">All users of the selected type(s) will be able to see restricted content when logged in.<br>
