@@ -35,5 +35,5 @@ Configuration
 
 **Prevent restriction for which user types?**
 
-  - User roles selected here will be able to view restricted content **when they are logged in only**.
-  - User roles **not** selected here will **never** be able to see restricted content, regardless of whether they are logged in.
+  - User roles selected here will never be able to view restricted content
+  - User roles selected here will **never** be able to see restricted content, regardless of whether they are logged in.
