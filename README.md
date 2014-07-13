@@ -37,3 +37,11 @@ Configuration
 
   - User roles selected here will never be able to view restricted content
   - User roles selected here will **never** be able to see restricted content, regardless of whether they are logged in.
+
+Future Development
+------------------
+
+I'd like to add the following features to the plugin. If you have suggestions for added features please email me at arippberger@gmail.com.
+
+  - Add shortcode to restrict content - content placed between start/end shortcodes would be restricted
+  - Resctrict content in RSS feeds 
